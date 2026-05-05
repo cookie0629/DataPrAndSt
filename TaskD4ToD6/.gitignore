@@ -1,0 +1,13 @@
+# Node
+Task D6/airline-service/node_modules/
+Task D6/airline-service/.env
+Task D6/airline-service/logs/*.log
+
+# Database dump files
+Database/
+
+# OS / editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

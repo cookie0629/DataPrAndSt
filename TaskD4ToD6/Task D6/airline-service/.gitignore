@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment variables (contains DB credentials)
+.env
+
+# Log files generated at runtime
+logs/*.log
+
+# OS / editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
