@@ -7,6 +7,7 @@ const isBookingRequest = celebrate({
     fareConditions: Joi.string().valid('Economy', 'Comfort', 'Business').required(),
     passengerId: Joi.string().required(),
     passengerName: Joi.string().required(),
+    outbound: Joi.boolean().default(true),
   }),
 });
 

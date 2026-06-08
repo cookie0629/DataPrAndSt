@@ -1,10 +1,6 @@
--- ============================================================
--- Task D4: Restore price information and build pricing_rules
--- Uses the 2025-09-01 schema:
---   segments (was ticket_flights), price (was amount),
---   airplanes (was aircrafts), airplane_code (was aircraft_code)
---   routes joined via temporal key: routes.validity @> flights.scheduled_departure
--- ============================================================
+-- Clean up from any previous run
+DROP TABLE IF EXISTS routes_seats_price, routes_with_seats, partial_price, restored_price, full_price;
+DROP TABLE IF EXISTS bookings.pricing_rules;
 
 -- Step 1: Average price per (route_no, fare_conditions, seat_no) from historical segments
 CREATE TABLE routes_seats_price AS (
@@ -28,7 +24,6 @@ CREATE TABLE routes_with_seats AS (
         se.seat_no,
         se.fare_conditions
     FROM bookings.routes AS r
-    JOIN bookings.airplanes AS ap ON ap.airplane_code = r.airplane_code
     JOIN bookings.seats AS se ON se.airplane_code = r.airplane_code
 );
 

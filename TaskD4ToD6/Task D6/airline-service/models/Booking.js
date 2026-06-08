@@ -161,6 +161,7 @@ class Booking {
         bookRef,
         passengerId: data.passengerId,
         passengerName: data.passengerName,
+        outbound: data.outbound !== undefined ? data.outbound : true,
       });
       data.ticketNo = ticketNo;
 

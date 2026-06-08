@@ -8,12 +8,12 @@ class Flight {
     }
   }
 
-  static async getBoardingPass(transaction, booking) {
+  static async getBoardingPass(transaction, ticketNo, flightId) {
     const QUERY = `
       SELECT * FROM bookings.boarding_passes
       WHERE ticket_no = $1 AND flight_id = $2;
     `;
-    const result = await transaction.query(QUERY, [booking.ticketNo, booking.flightId]);
+    const result = await transaction.query(QUERY, [ticketNo, flightId]);
     return result?.rows[0];
   }
 
@@ -23,7 +23,7 @@ class Flight {
     }
   }
 
-  static async getFlightById(transaction, booking) {
+  static async getFlightById(transaction, flightId) {
     // airplane_code is on routes, not flights
     const QUERY = `
       SELECT f.flight_id AS "flightId", r.airplane_code AS "airplaneCode", f.status
@@ -33,23 +33,24 @@ class Flight {
       WHERE f.flight_id = $1
         AND f.status IN ('On Time', 'Delayed', 'Boarding');
     `;
-    const result = await transaction.query(QUERY, [booking.flightId]);
+    const result = await transaction.query(QUERY, [flightId]);
     return result?.rows[0];
   }
 
   static checkTicketFlight(ticketFlight) {
     if (!ticketFlight) {
-      throw new BadRequest('To check in for a flight, a valid ticket for this flight is required');
+      throw new NotFound('The specified ticket was not found or has no associated flight');
     }
   }
 
-  static async getSegment(transaction, booking) {
+  // Look up the segment by ticketNo only — one ticket maps to exactly one flight
+  static async getSegmentByTicket(transaction, ticketNo) {
     const QUERY = `
       SELECT flight_id AS "flightId", fare_conditions AS "fareConditions"
       FROM bookings.segments
-      WHERE ticket_no = $1 AND flight_id = $2;
+      WHERE ticket_no = $1;
     `;
-    const result = await transaction.query(QUERY, [booking.ticketNo, booking.flightId]);
+    const result = await transaction.query(QUERY, [ticketNo]);
     return result?.rows[0];
   }
 
@@ -106,19 +107,23 @@ class Flight {
     const transaction = await db.connect();
     try {
       await transaction.query('BEGIN');
-      const flight = await this.getFlightById(transaction, booking);
-      this.checkFlightExists(flight);
-      const foundBoardingPass = await this.getBoardingPass(transaction, booking);
-      this.checkBoardingPassDoesNotExist(foundBoardingPass);
-      const segment = await this.getSegment(transaction, booking);
+      // Step 1: look up the segment to get flightId and fareConditions
+      const segment = await this.getSegmentByTicket(transaction, booking.ticketNo);
       this.checkTicketFlight(segment);
+      // Step 2: verify the flight exists and is in a boardable status
+      const flight = await this.getFlightById(transaction, segment.flightId);
+      this.checkFlightExists(flight);
+      // Step 3: check not already checked in
+      const foundBoardingPass = await this.getBoardingPass(transaction, booking.ticketNo, segment.flightId);
+      this.checkBoardingPassDoesNotExist(foundBoardingPass);
+      // Step 4: allocate a seat
       const seat = await this.getSeatForBooking(transaction, segment, flight);
       this.checkSeatAvailable(seat);
-      const boardingNo = await this.generateBoardingPassNo(transaction, booking.flightId);
+      const boardingNo = await this.generateBoardingPassNo(transaction, segment.flightId);
       const boardingPass = {
         boardingNo,
         ticketNo: booking.ticketNo,
-        flightId: booking.flightId,
+        flightId: segment.flightId,
         seatNo: seat.seatNo,
       };
       await this.insertBoardingPass(transaction, boardingPass);

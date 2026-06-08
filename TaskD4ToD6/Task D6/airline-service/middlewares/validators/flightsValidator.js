@@ -8,13 +8,12 @@ const isFlightSearchQuery = celebrate({
       .pattern(/^\d{4}-\d{2}-\d{2}$/)
       .required(),
     fareConditions: Joi.string().valid('Economy', 'Comfort', 'Business'),
-    transfers: Joi.number().integer().min(0),
+    transfers: Joi.number().integer().min(0).max(3),
   }),
 });
 
 const isCheckinRequest = celebrate({
   body: Joi.object().keys({
-    flightId: Joi.number().integer().required(),
     ticketNo: Joi.string().length(13).required(),
   }),
 });

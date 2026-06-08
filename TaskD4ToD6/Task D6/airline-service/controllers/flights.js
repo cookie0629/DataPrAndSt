@@ -12,8 +12,8 @@ const getFlights = async (req, res, next) => {
 
 const checkIn = async (req, res, next) => {
   try {
-    const { ticketNo, flightId } = req.body;
-    const boardingPass = await Flight.checkIn({ ticketNo, flightId });
+    const { ticketNo } = req.body;
+    const boardingPass = await Flight.checkIn({ ticketNo });
     res.status(201).json(boardingPass);
   } catch (error) {
     next(error);
