@@ -1,0 +1,21 @@
+# 使用本机 PostgreSQL（已导入 demo 库）时的配置
+# 用法：docker compose -f docker-compose.local.yaml up --build
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: hoi_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    environment:
+      DB_HOST: host.docker.internal
+      DB_NAME: demo
+      DB_USER: postgres
+      DB_PASSWORD: 123456
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
