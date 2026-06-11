@@ -1,13 +1,50 @@
-# Node
+# ========== Node.js ==========
+node_modules/
+Task D6/node_modules/
 Task D6/airline-service/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ========== 环境变量与密钥（切勿提交） ==========
+.env
+.env.*
+!.env.example
+Task D6/.env
 Task D6/airline-service/.env
-Task D6/airline-service/logs/*.log
 
-# Database dump files
+# ========== 日志 ==========
+logs/
+*.log
+Task D6/airline-service/logs/
+
+# ========== 数据库备份与大型数据文件 ==========
 Database/
+*.sql.gz
+*.dump
+*.backup
 
-# OS / editor artifacts
+# ========== Docker 本地数据（非项目配置） ==========
+# 注意：docker-compose.yaml / Dockerfile 需要提交，不要忽略
+
+# ========== 操作系统 ==========
 .DS_Store
 Thumbs.db
-.vscode/
+desktop.ini
+
+# ========== IDE / 编辑器 ==========
 .idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ========== 测试与覆盖率 ==========
+coverage/
+.nyc_output/
+
+# ========== 临时文件 ==========
+*.tmp
+*.temp
+.cache/
