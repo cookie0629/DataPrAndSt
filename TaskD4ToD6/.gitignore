@@ -48,3 +48,4 @@ coverage/
 *.tmp
 *.temp
 .cache/
+Task D6/docker-compose.yaml
