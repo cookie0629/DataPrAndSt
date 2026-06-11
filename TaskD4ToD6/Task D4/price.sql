@@ -1,6 +1,14 @@
 -- Task D4 - price.sql
 -- 作用：创建「定价规则表」pricing_rules，并用历史票价数据填充
--- 执行：psql -U postgres -d demo -f "Task D4/price.sql"
+--
+-- 前提：demo 库已导入 PostgresPro 航班数据（须有 bookings.routes / flights / segments）
+--       本脚本不会创建 demo 库，也不会导入原始 demo；只新建 pricing_rules 这一张表
+--
+-- 执行（本机）：psql -U postgres -d demo -f "Task D4/price.sql"
+-- 执行（Docker）：
+--   Get-Content "Task D4\price.sql" -Raw | docker exec -i postgres_db_demo psql -U postgres -d demo
+--
+-- 验证：SELECT COUNT(*) FROM bookings.pricing_rules;
 
 DROP TABLE IF EXISTS bookings.pricing_rules CASCADE;
 

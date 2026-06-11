@@ -17,10 +17,12 @@ app.use(require('./routes/checkin'));
 
 // 统一错误处理：返回 JSON，不因单次请求失败而退出进程
 app.use((err, req, res, next) => {
-  const isMissingTable = err.code === '42P01';
+  const isMissingDemoData = err.code === '42P01'
+    && /does not exist|不存在/.test(err.message)
+    && !/FROM-clause|FROM子句|丢失FROM/i.test(err.message);
   res.status(err.status || 500).json({
     error: err.message,
-    hint: isMissingTable
+    hint: isMissingDemoData
       ? 'demo 数据库未导入。请先按 Task D6/SETUP.md 导入 PostgresPro demo 数据。'
       : undefined,
   });

@@ -49,3 +49,5 @@ coverage/
 *.temp
 .cache/
 Task D6/docker-compose.yaml
+Task D4/demo-20250901-3m.sql
+Task D6/app/node_modules

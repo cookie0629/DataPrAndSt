@@ -66,14 +66,14 @@ router.get('/routes', asyncHandler(async (req, res) => {
     );
   }
 
-  // 终点条件（在递归结果 itins 上过滤）
+  // 终点条件（在最外层 FROM itins 上过滤，这里没有别名 i，直接用列名）
   const finishConditions = [];
   if (isAirportCode(to)) {
     params.push(to);
-    finishConditions.push(`i.arrival_airport = $${params.length}`);
+    finishConditions.push(`arrival_airport = $${params.length}`);
   } else {
     params.push(to);
-    finishConditions.push(`i.arrival_city = $${params.length}`);
+    finishConditions.push(`arrival_city = $${params.length}`);
   }
 
   params.push(maxConn);
@@ -118,14 +118,14 @@ router.get('/routes', asyncHandler(async (req, res) => {
         (i.path_flights || f2.flight_id::bigint)::bigint[]
       FROM itins i
       JOIN bookings.routes r2 ON r2.departure_airport = i.arrival_airport  -- 从上一程落地机场出发
+      JOIN bookings.airports_data arr_a2 ON arr_a2.airport_code = r2.arrival_airport  -- 必须先 JOIN，后面才能用 arr_a2
       JOIN bookings.flights f2
         ON f2.route_no = r2.route_no
         AND f2.scheduled_departure <@ r2.validity
         AND f2.scheduled_departure >= i.scheduled_arrival + INTERVAL '${MIN_CONNECTION_MINUTES} minutes'
         AND f2.scheduled_departure <= i.scheduled_arrival + INTERVAL '${MAX_CONNECTION_HOURS} hours'
         AND f2.status = 'Scheduled'
-        AND NOT (arr_a2.airport_code = ANY(i.path_airports))  -- 不能重复经过同一机场
-      JOIN bookings.airports_data arr_a2 ON arr_a2.airport_code = r2.arrival_airport
+        AND NOT (r2.arrival_airport::text = ANY(i.path_airports))  -- 不能重复经过同一机场
       WHERE i.connections + 1 <= $${maxConnParam}  -- 中转次数不能超过用户设定的上限
     )
     SELECT connections, path_flights
