@@ -1,8 +1,8 @@
 # 航空客运预订系统
 
-基于 [PostgresPro 航空运输演示数据库](https://postgrespro.ru/education/demodb)（2025-09-01 版本），完成数据修复（Task D4）、RESTful API 设计（Task D5）与 API 实现（Task D6）。结构对齐参考模板 `HOI_D1-D6_tasks`，采用极简扁平架构。
+基于 [PostgresPro 航空运输演示数据库](https://postgrespro.ru/education/demodb)（2025-09-01 版本），完成数据修复（Task D4）、RESTful API 设计（Task D5）与 API 实现（Task D6）。
 
-答辩讲稿与演示命令见 **[汇报.md](汇报.md)**。
+讲稿与演示命令见 **[汇报.md](汇报.md)**。
 
 ---
 
@@ -72,7 +72,7 @@ docker compose -f docker-compose.local.yaml up --build
 
 | 步骤 | URL | 预期 |
 |------|-----|------|
-| 健康检查 | http://localhost:3000/ | `Hello world` |
+| 健康检查 | http://localhost:3000/ | `你看看是不是这里` |
 | 城市列表 | http://localhost:3000/cities | JSON 数组 |
 | 城市机场 | http://localhost:3000/cities/Moscow/airports | 机场列表 |
 | 航线搜索 | http://localhost:3000/routes?from=Moscow&to=LED&date=2025-12-31&connections=1&bookingClass=economy | 航线 JSON |
@@ -122,8 +122,6 @@ D6 的 `app/routes/*.js` 与上述接口一一对应。
 ## Task D6 — 后端实现
 
 ### 架构说明
-
-原 MVC 分层（controllers / models / middlewares）已重构为：
 
 - `main.js` — 启动 + 挂载路由
 - `db.js` — 数据库连接池
@@ -193,9 +191,3 @@ psql -U postgres -d demo -f "Task D6/postgres-init/indexes.sql"
 | 容器 | Docker Compose + postgres:17 |
 
 ---
-
-## 参考
-
-- 课程模板：`HOI_D1-D6_tasks/`（Python/Flask 版 d6，目录风格一致）
-- 需求与 schema 说明：`上下文.md`
-- 答辩准备：`汇报.md`
