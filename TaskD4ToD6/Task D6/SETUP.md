@@ -133,6 +133,26 @@ http://localhost:3000/cities
 
 ---
 
+## API 筛选参数（outbound / inbound）
+
+与 `api.yaml` 一致，已在 `app/routes/airports.js` 实现：
+
+```
+GET /airports/SVO/outbound?destination=LED&time_from=06:00:00&time_to=18:00:00&limit=5
+GET /airports/SVO/inbound?origin=Moscow&limit=10
+```
+
+| 参数 | 说明 |
+|------|------|
+| `destination` | outbound：目的地机场码或城市 |
+| `origin` | inbound：出发地机场码或城市 |
+| `time_from` / `time_to` | 时刻范围 `HH:MM:SS` |
+| `limit` | 默认 10，最大 100 |
+
+修改 `api.yaml` 后需同步更新 `airports.js` 并 `docker compose restart web`。
+
+---
+
 ## 启动成功的标志
 
 终端里应看到：

@@ -3,8 +3,8 @@ http://127.0.0.1:3000/routes?from=Moscow&to=LED&date=2025-12-31&connections=3&bo
 http://127.0.0.1:3000/cities
 http://127.0.0.1:3000/airports
 http://127.0.0.1:3000/cities/Moscow/airports
-http://127.0.0.1:3000/airports/SVO/inbound
-http://127.0.0.1:3000/airports/SVO/outbound
+http://127.0.0.1:3000/airports/SVO/inbound?origin=Moscow&limit=10
+http://127.0.0.1:3000/airports/SVO/outbound?destination=LED&time_from=06:00:00&time_to=18:00:00&limit=5
 
 http://localhost:3000/bookings
 {

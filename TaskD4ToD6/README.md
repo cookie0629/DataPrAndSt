@@ -18,11 +18,12 @@
 ├── Task D5/
 │   └── api.yaml                     # OpenAPI 3.0 接口契约
 └── Task D6/
+    ├── api.yaml                     # 与 Task D5 同步，D6 实现依据
     ├── package.json
     ├── docker-compose.yaml          # Docker 全栈（web + postgres）
     ├── docker-compose.local.yaml    # 仅 web，连本机 Postgres（推荐）
     ├── SETUP.md                     # 环境配置与排错
-    ├── requests.txt                 # POST 示例
+    ├── requests.txt                 # GET/POST 示例（含 outbound 筛选）
     ├── postgres-init/indexes.sql    # 查询索引（demo 导入后执行）
     └── app/
         ├── main.js                  # 唯一入口
@@ -76,7 +77,7 @@ docker compose -f docker-compose.local.yaml up --build
 | 城市列表 | http://localhost:3000/cities | JSON 数组 |
 | 城市机场 | http://localhost:3000/cities/Moscow/airports | 机场列表 |
 | 航线搜索 | http://localhost:3000/routes?from=Moscow&to=LED&date=2025-12-31&connections=1&bookingClass=economy | 航线 JSON |
-| 进港 | http://localhost:3000/airports/SVO/inbound | 航线时刻 |
+| 出港（带筛选） | http://localhost:3000/airports/SVO/outbound?destination=LED&time_from=06:00:00&time_to=23:59:59&limit=5 | 最多 5 条，目的地 LED |
 | 订票 / 值机 | 见 `Task D6/requests.txt` | 201 + JSON |
 
 ---
@@ -96,7 +97,15 @@ docker compose -f docker-compose.local.yaml up --build
 | `bookings.*` 航班表 | 导入 PostgresPro demo |
 | `bookings.pricing_rules` | **执行 `price.sql` 后才有**（D4 交付物，不在原始 demo 中） |
 
-定价公式：`票价 = 飞行分钟数 × 舱位单价`（Economy 50 / Comfort 65 / Business 100）
+定价公式：`票价 = 飞行分钟数 × 舱位每分钟单价`
+
+| 舱位 | 每分钟单价 | 依据 |
+|------|-----------|------|
+| Economy | 50 | 从历史 `segments` 反推的均价（见 `Task D4/verify_rates.sql`） |
+| Comfort | 65 | 同上，约为经济舱的 1.3 倍 |
+| Business | 100 | 同上，为经济舱的 2 倍 |
+
+这三个数不是随意选取：demo 库中全部历史票价均满足 `price = 单价 × 飞行分钟数`，回代误差为 0。
 
 ---
 
@@ -109,13 +118,14 @@ docker compose -f docker-compose.local.yaml up --build
 | GET | `/cities` | 所有城市 |
 | GET | `/cities/{city}/airports` | 城市下的机场 |
 | GET | `/airports` | 所有机场 |
-| GET | `/airports/{code}/inbound` | 进港航线 |
-| GET | `/airports/{code}/outbound` | 出港航线 |
+| GET | `/airports/{code}/inbound` | 进港航线（可选 `origin`、`time_from`、`time_to`、`limit`） |
+| GET | `/airports/{code}/outbound` | 出港航线（可选 `destination`、`time_from`、`time_to`、`limit`） |
 | GET | `/routes` | 航线搜索（直飞 + 中转） |
 | POST | `/bookings` | 创建预订（支持多段 `segments`） |
 | POST | `/check-in` | 在线值机（仅需 `ticket_no`） |
 
-D6 的 `app/routes/*.js` 与上述接口一一对应。
+D6 的 `app/routes/*.js` 与上述接口一一对应。  
+出港/进港筛选在 `app/routes/airports.js` 实现：`destination`/`origin`、`time_from`/`time_to`、`limit`。
 
 ---
 
